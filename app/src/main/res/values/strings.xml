@@ -6,7 +6,8 @@
     <string name="ask_quillo">Ask Quillo</string>
     <string name="ask_subtitle">AI assistant</string>
     <string name="ask_placeholder">Ask about your money…</string>
-    <string name="ask_reply">I can help with your spending, savings and bills. Answers will use your own transactions.</string>
+    <string name="ask_thinking">Thinking…</string>
+    <string name="ask_error">Couldn\'t reach Quillo right now. Check that your Mac is on and on the same Wi-Fi, then try again.</string>
     <string name="send">Send</string>
     <string name="delete">Delete</string>
     <string name="back">Back</string>

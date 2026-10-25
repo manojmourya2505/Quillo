@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+import com.inouiw.quillo.data.AgentApi
 import com.inouiw.quillo.data.formatInr
 import com.inouiw.quillo.ui.components.ScreenTitle
 import com.inouiw.quillo.ui.theme.QCard
@@ -66,25 +69,34 @@ private data class ChatMessage(
 fun AskScreen(onBack: () -> Unit) {
     val messages = remember { mutableStateListOf<ChatMessage>() }
     var draft by remember { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
-    val replyText = stringResource(R.string.ask_reply)
+    val errorText = stringResource(R.string.ask_error)
 
     fun send(text: String) {
         val clean = text.trim()
-        if (clean.isEmpty()) return
+        if (clean.isEmpty() || busy) return
+        val history = messages.takeLast(10).map {
+            AgentApi.Turn(if (it.fromUser) "user" else "assistant", it.text)
+        }
         messages.add(ChatMessage(clean, fromUser = true))
-        messages.add(
-            ChatMessage(
-                replyText,
-                fromUser = false,
-            ),
-        )
         draft = ""
+        busy = true
+        scope.launch {
+            val reply = try {
+                AgentApi.ask(clean, history)
+            } catch (e: Exception) {
+                errorText
+            }
+            messages.add(ChatMessage(reply, fromUser = false))
+            busy = false
+        }
     }
 
     LaunchedEffect(messages.size) {
-        listState.animateScrollToItem(messages.lastIndex)
+        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
     }
 
     Column(
@@ -108,6 +120,10 @@ fun AskScreen(onBack: () -> Unit) {
             itemsIndexed(messages) { _, message ->
                 ChatBubble(message)
             }
+        }
+
+        if (busy) {
+            Text(stringResource(R.string.ask_thinking), fontSize = 13.sp, color = QMuted, modifier = Modifier.padding(top = 8.dp))
         }
 
         Spacer(Modifier.height(10.dp))
