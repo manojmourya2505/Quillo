@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The intro flag lives in quillo_prefs.xml and must stay on this device only. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="quillo_prefs.xml"/>
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="quillo_prefs.xml"/>
+    </device-transfer>
+</data-extraction-rules>

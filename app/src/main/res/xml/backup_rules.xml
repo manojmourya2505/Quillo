@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The intro flag lives in quillo_prefs.xml and must stay on this device only. -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="quillo_prefs.xml"/>
+</full-backup-content>
